@@ -1,5 +1,4 @@
 
-
 public class User {
 
     private long id;
@@ -15,7 +14,6 @@ public class User {
             String password,
             String lastName,
             String firstName,
-            String middleName,
             String phone
     ) {
         validateId(id);
@@ -78,9 +76,6 @@ public class User {
         this.firstName = firstName;
     }
 
-
-   
-
     public String getPhone() {
         return phone;
     }
@@ -99,17 +94,7 @@ public class User {
     }
 
     public static void validateEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Email не может быть пустым"
-            );
-        }
-
-        if (email.length() > 255) {
-            throw new IllegalArgumentException(
-                    "Email не может содержать более 255 символов"
-            );
-        }
+        validateRequiredString(email, "Email", 255);
 
         if (!email.matches(
                 "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
@@ -121,76 +106,59 @@ public class User {
     }
 
     public static void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Пароль не может быть пустым"
-            );
-        }
+        validateRequiredString(password, "Пароль", 255);
 
         if (password.length() < 8) {
             throw new IllegalArgumentException(
                     "Пароль должен содержать минимум 8 символов"
             );
         }
-
-        if (password.length() > 255) {
-            throw new IllegalArgumentException(
-                    "Пароль не может содержать более 255 символов"
-            );
-        }
     }
 
     public static void validateLastName(String lastName) {
-        if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Фамилия не может быть пустой"
-            );
-        }
-
-        if (lastName.length() > 50) {
-            throw new IllegalArgumentException(
-                    "Фамилия не может содержать более 50 символов"
-            );
-        }
-
-        if (!lastName.matches("[\\p{L}-]+")) {
-            throw new IllegalArgumentException(
-                    "Фамилия может содержать только буквы и дефис"
-            );
-        }
+        validateName(lastName, "Фамилия");
     }
 
     public static void validateFirstName(String firstName) {
-        if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Имя не может быть пустым"
-            );
-        }
-
-        if (firstName.length() > 50) {
-            throw new IllegalArgumentException(
-                    "Имя не может содержать более 50 символов"
-            );
-        }
-
-        if (!firstName.matches("[\\p{L}-]+")) {
-            throw new IllegalArgumentException(
-                    "Имя может содержать только буквы и дефис"
-            );
-        }
+        validateName(firstName, "Имя");
     }
 
-  
     public static void validatePhone(String phone) {
-        if (phone == null || phone.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Телефон не может быть пустым"
-            );
-        }
+        validateRequiredString(phone, "Телефон", 20);
 
         if (!phone.matches("^\\+[0-9]{10,15}$")) {
             throw new IllegalArgumentException(
                     "Телефон должен быть в международном формате, например +447911123456"
+            );
+        }
+    }
+
+    private static void validateName(String name, String fieldName) {
+        validateRequiredString(name, fieldName, 50);
+
+        if (!name.matches("[\\p{L}-]+")) {
+            throw new IllegalArgumentException(
+                    fieldName + " может содержать только буквы и дефис"
+            );
+        }
+    }
+
+    private static void validateRequiredString(
+            String value,
+            String fieldName,
+            int maxLength
+    ) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(
+                    fieldName + " не может быть пустым"
+            );
+        }
+
+        if (value.length() > maxLength) {
+            throw new IllegalArgumentException(
+                    fieldName + " не может содержать более "
+                            + maxLength
+                            + " символов"
             );
         }
     }
