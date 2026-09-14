@@ -31,6 +31,34 @@ public class User {
         this.phone = phone;
     }
 
+    // Формат строки: id;email;password;lastName;firstName;phone
+    public User(String userData) {
+        this(splitUserData(userData));
+    }
+
+    private User(String[] data) {
+        this(
+                Long.parseLong(data[0]),
+                data[1],
+                data[2],
+                data[3],
+                data[4],
+                data[5]
+        );
+    }
+
+    private static String[] splitUserData(String userData) {
+        String[] data = userData.split(";", -1);
+
+        if (data.length != 6) {
+            throw new IllegalArgumentException(
+                    "Строка должна содержать 6 значений через точку с запятой"
+            );
+        }
+
+        return data;
+    }
+
     public long getId() {
         return id;
     }
