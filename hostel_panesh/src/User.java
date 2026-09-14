@@ -1,4 +1,6 @@
 
+import java.util.Objects;
+
 public class User {
 
     private long id;
@@ -111,6 +113,45 @@ public class User {
     public void setPhone(String phone) {
         validatePhone(phone);
         this.phone = phone;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", phone='" + phone + '\'' +
+                '}';
+    }
+
+    public String toShortString() {
+        return "User{id=" + id + ", email='" + email + "'}";
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof User)) {
+            return false;
+        }
+
+        User user = (User) object;
+        return id == user.id
+                && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password)
+                && Objects.equals(lastName, user.lastName)
+                && Objects.equals(firstName, user.firstName)
+                && Objects.equals(phone, user.phone);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, lastName, firstName, phone);
     }
 
     public static void validateId(long id) {
