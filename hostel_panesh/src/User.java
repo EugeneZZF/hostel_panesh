@@ -1,63 +1,33 @@
-
 import java.util.Objects;
 
-public class User {
+public class User extends UserShort {
 
     private long id;
     private String email;
     private String password;
-    private String lastName;
-    private String firstName;
-    private String phone;
 
-    public User(
-            long id,
-            String email,
-            String password,
-            String lastName,
-            String firstName,
-            String phone
-    ) {
-        validateId(id);
-        validateEmail(email);
-        validatePassword(password);
-        validateLastName(lastName);
-        validateFirstName(firstName);
-        validatePhone(phone);
-
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.phone = phone;
+    public User(long id, String email, String password,
+                String lastName, String firstName, String phone) {
+        super(lastName, firstName, phone);
+        setId(id);
+        setEmail(email);
+        setPassword(password);
     }
 
-    // Формат строки: id;email;password;lastName;firstName;phone
+    // Format: id;email;password;lastName;firstName;phone
     public User(String userData) {
-        this(splitUserData(userData));
+        this(split(userData));
     }
 
     private User(String[] data) {
-        this(
-                Long.parseLong(data[0]),
-                data[1],
-                data[2],
-                data[3],
-                data[4],
-                data[5]
-        );
+        this(Long.parseLong(data[0]), data[1], data[2], data[3], data[4], data[5]);
     }
 
-    private static String[] splitUserData(String userData) {
+    private static String[] split(String userData) {
         String[] data = userData.split(";", -1);
-
         if (data.length != 6) {
-            throw new IllegalArgumentException(
-                    "Строка должна содержать 6 значений через точку с запятой"
-            );
+            throw new IllegalArgumentException("Six values are required");
         }
-
         return data;
     }
 
@@ -66,7 +36,9 @@ public class User {
     }
 
     public void setId(long id) {
-        validateId(id);
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid id");
+        }
         this.id = id;
     }
 
@@ -75,7 +47,10 @@ public class User {
     }
 
     public void setEmail(String email) {
-        validateEmail(email);
+        validateRequiredString(email, "email", 255);
+        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("Invalid email");
+        }
         this.email = email;
     }
 
@@ -84,65 +59,30 @@ public class User {
     }
 
     public void setPassword(String password) {
-        validatePassword(password);
+        validateRequiredString(password, "password", 255);
+        if (password.length() < 8) {
+            throw new IllegalArgumentException("Password must have 8 characters");
+        }
         this.password = password;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        validateLastName(lastName);
-        this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        validateFirstName(firstName);
-        this.firstName = firstName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        validatePhone(phone);
-        this.phone = phone;
     }
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", phone='" + phone + '\'' +
-                '}';
+        return "User{id=" + id + ", email='" + email + "', password='" + password
+                + "', lastName='" + lastName + "', firstName='" + firstName
+                + "', phone='" + phone + "'}";
     }
 
     public String toShortString() {
-        return "User{id=" + id + ", email='" + email + "'}";
+        return super.toString();
     }
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof User)) {
-            return false;
-        }
-
+        if (this == object) return true;
+        if (!(object instanceof User)) return false;
         User user = (User) object;
-        return id == user.id
-                && Objects.equals(email, user.email)
+        return id == user.id && Objects.equals(email, user.email)
                 && Objects.equals(password, user.password)
                 && Objects.equals(lastName, user.lastName)
                 && Objects.equals(firstName, user.firstName)
@@ -152,83 +92,5 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, email, password, lastName, firstName, phone);
-    }
-
-    public static void validateId(long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException(
-                    "ID должен быть больше 0"
-            );
-        }
-    }
-
-    public static void validateEmail(String email) {
-        validateRequiredString(email, "Email", 255);
-
-        if (!email.matches(
-                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-        )) {
-            throw new IllegalArgumentException(
-                    "Некорректный формат email"
-            );
-        }
-    }
-
-    public static void validatePassword(String password) {
-        validateRequiredString(password, "Пароль", 255);
-
-        if (password.length() < 8) {
-            throw new IllegalArgumentException(
-                    "Пароль должен содержать минимум 8 символов"
-            );
-        }
-    }
-
-    public static void validateLastName(String lastName) {
-        validateName(lastName, "Фамилия");
-    }
-
-    public static void validateFirstName(String firstName) {
-        validateName(firstName, "Имя");
-    }
-
-    public static void validatePhone(String phone) {
-        validateRequiredString(phone, "Телефон", 20);
-
-        if (!phone.matches("^\\+[0-9]{10,15}$")) {
-            throw new IllegalArgumentException(
-                    "Телефон должен быть в международном формате, например +447911123456"
-            );
-        }
-    }
-
-    private static void validateName(String name, String fieldName) {
-        validateRequiredString(name, fieldName, 50);
-
-        if (!name.matches("[\\p{L}-]+")) {
-            throw new IllegalArgumentException(
-                    fieldName + " может содержать только буквы и дефис"
-            );
-        }
-    }
-
-    private static void validateRequiredString(
-            String value,
-            String fieldName,
-            int maxLength
-    ) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(
-                    fieldName + " не может быть пустым"
-            );
-        }
-
-        if (value.length() > maxLength) {
-            throw new IllegalArgumentException(
-                    fieldName + " не может содержать более "
-                            + maxLength
-                            + " символов"
-            );
-        }
     }
 }
